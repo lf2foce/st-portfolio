@@ -1,0 +1,6 @@
+Pillow
+pandas
+plotly
+requests
+beautifulsoup4
+PyYAML
