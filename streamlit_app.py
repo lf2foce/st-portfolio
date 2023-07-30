@@ -1,38 +1,60 @@
-from collections import namedtuple
-import altair as alt
-import math
-import pandas as pd
 import streamlit as st
+import pandas as pd
+import numpy as np
+import plotly.express as px
 
-"""
-# Welcome to Streamlit!
+from src.get_data import stock_wide_format
+from src.greeting import get_local_IP_address
+from my_chart.heatmap import stock_heatmap
 
-Edit `/streamlit_app.py` to customize this app to your heart's desire :heart:
+st.set_page_config(
+        page_title="Fidelity Account View by Gerard Bentley",
+        page_icon="📊",
+        initial_sidebar_state="expanded",
+        layout="wide",
+    )
 
-If you have any questions, checkout our [documentation](https://docs.streamlit.io) and [community
-forums](https://discuss.streamlit.io).
+stock_list = ['VCB', 'HPG', 'VIC', 'FPT', 'FRT']
+print(stock_list)
 
-In the meantime, below is an example of what you can do with just a few lines of code:
-"""
+stocks_df_pivot = stock_wide_format(stock_list)
+# print(stocks_df_pivot.head())
+df_month_resample = stocks_df_pivot.resample('M').last()
+df_month_resample = df_month_resample.reset_index().melt('date', var_name='Ticker', value_name='Adj_Close')
+df_month_resample.columns = ['Date', 'Ticker', 'Adj_Close']
+df_month_resample['pct'] = df_month_resample.sort_values('Date').groupby(['Ticker'])['Adj_Close'].pct_change()
+print(df_month_resample.head())
+
+df_month_resample = df_month_resample.dropna()
+
+fig1 = px.bar(df_month_resample, x='Date', y='pct', text=[f'{i:.1%}' for i in df_month_resample['pct']],
+    color='Ticker', barmode='group',
+    title="Monthly returns",
+    labels={"pct": "return", "Date": "End of Month"}
+    ) #, orientation='h'
+
+fig1.update_traces(textfont_size=16, textangle=0)#, marker_color=colors
+# fig1.update_layout(template="plotly_white")
+
+st.plotly_chart(fig1, use_container_width=True)
+
+stocks_df_pivot = stocks_df_pivot.fillna(method='bfill')
+stocks_df_normalize = stocks_df_pivot/stocks_df_pivot.iloc[0,:] # normalize
+
+fig2 = px.line(stocks_df_normalize, x=stocks_df_normalize.index, y=stocks_df_normalize.columns)
+st.plotly_chart(fig2, use_container_width=True)
 
 
-with st.echo(code_location='below'):
-    total_points = st.slider("Number of points in spiral", 1, 5000, 2000)
-    num_turns = st.slider("Number of turns in spiral", 1, 100, 9)
+fig3 = stock_heatmap(stocks_df_pivot)
+st.plotly_chart(fig3, use_container_width=True)
 
-    Point = namedtuple('Point', 'x y')
-    data = []
 
-    points_per_turn = total_points / num_turns
 
-    for curr_point_num in range(total_points):
-        curr_turn, i = divmod(curr_point_num, points_per_turn)
-        angle = (curr_turn + 1) * 2 * math.pi * i / points_per_turn
-        radius = curr_point_num / total_points
-        x = radius * math.cos(angle)
-        y = radius * math.sin(angle)
-        data.append(Point(x, y))
+df_long_pct = stocks_df_pivot.resample('W-MON').last().pct_change()
+df_long_pct = df_long_pct.reset_index().melt('date', var_name='Ticker', value_name='weekly_return')
 
-    st.altair_chart(alt.Chart(pd.DataFrame(data), height=500, width=500)
-        .mark_circle(color='#0068c9', opacity=0.5)
-        .encode(x='x:Q', y='y:Q'))
+fig4 = px.violin(df_long_pct,y='Ticker',x='weekly_return', color='Ticker', orientation='h')\
+    .update_traces(side='positive', width=2, meanline_visible=True, points = False)
+fig4.update_layout(xaxis_zeroline=False)
+st.plotly_chart(fig4, use_container_width=True)
+
