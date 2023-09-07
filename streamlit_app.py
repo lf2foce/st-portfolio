@@ -1,10 +1,14 @@
 import streamlit as st
+from sqlalchemy.sql import text
+from sqlalchemy import create_engine
+
 import pandas as pd
 import numpy as np
 import plotly.express as px
 
-from src.get_data import stock_wide_format
+
 from src.greeting import get_local_IP_address
+from src.filter.stock_selection import my_portfolio
 from my_chart.heatmap import stock_heatmap
 
 st.set_page_config(
@@ -14,10 +18,40 @@ st.set_page_config(
         layout="wide",
     )
 
-stock_list = ['VCB', 'HPG', 'VIC', 'FPT', 'FRT']
-print(stock_list)
+# # Create the SQL connection to pets_db as specified in your secrets file.
+# conn = st.experimental_connection('stocks_db', type='sql')
+# st.text(dir(conn.session))
+# # Insert some data with conn.session.
+# with conn.session as s:
+#     s.execute(text('CREATE TABLE IF NOT EXISTS pet_owners (person TEXT, pet TEXT);'))
+#     s.execute(text('DELETE FROM pet_owners;'))
+#     pet_owners = {'jerry': 'fish', 'barbara': 'cat', 'alex': 'puppy'}
+#     for k in pet_owners:
+#         s.execute(
+#             text('INSERT INTO pet_owners (person, pet) VALUES (:owner, :pet);'),
+#             params=dict(owner=k, pet=pet_owners[k])
+#         )
+#     s.commit()
 
-stocks_df_pivot = stock_wide_format(stock_list)
+# # Query and display the data you inserted
+# pet_owners = conn.query('select * from pet_owners')
+# st.dataframe(pet_owners)
+
+
+
+
+stocks_df_pivot = my_portfolio()
+# engine = create_engine('sqlite:///stocks.db', echo=False)
+
+# stocks_df_pivot = pd.read_sql('''select * from stock_price_pivot;''', con=engine)
+# stocks_df_pivot['date'] = pd.to_datetime(stocks_df_pivot['date'], format='%Y-%m-%d')
+# stocks_df_pivot.set_index('date', inplace=True)
+
+
+
+st.dataframe(stocks_df_pivot)
+
+
 # print(stocks_df_pivot.head())
 df_month_resample = stocks_df_pivot.resample('M').last()
 df_month_resample = df_month_resample.reset_index().melt('date', var_name='Ticker', value_name='Adj_Close')
