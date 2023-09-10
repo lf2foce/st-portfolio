@@ -2,6 +2,7 @@ import streamlit as st
 import plotly.graph_objects as go
 import pandas as pd
 from prophet import Prophet
+from prophet.plot import plot_plotly, plot_components_plotly
 
 # # Create the SQL connection to pets_db as specified in your secrets file.
 # conn = st.experimental_connection('stocks_db', type='sql')
@@ -81,3 +82,13 @@ m.fit(data_train)
 future = m.make_future_dataframe(periods=30)
 future.tail()
 forecast = m.predict(future)
+st.write(forecast.tail())
+
+fig1 = plot_plotly(m, forecast)
+
+st.plotly_chart(fig1, use_container_width=True)
+
+
+fig2 = plot_components_plotly(m, forecast)
+
+st.plotly_chart(fig2, use_container_width=True)
