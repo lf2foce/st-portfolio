@@ -318,14 +318,25 @@ class DataLoaderCAFE(DataLoadProto):
 # loader1 = DataLoaderVND(symbols="VND", start="2021-01-01", end="2021-02-15")
 # loader2 = DataLoaderCAFE(symbols="VND", start="2017-01-10", end="2019-02-15")
 # loader3 = DataLoader(symbols='VND', start="2018-01-10", end="2018-02-15", minimal=False, data_source='vnd')
-# loader3 = DataLoader(symbols='VND', start="2018-01-10", end="2018-02-15", minimal=True, data_source='vnd')
-# loader3 = DataLoader(symbols=['VND', 'VCB'], start="2018-01-10", end="2018-02-15", minimal=True, data_source='vnd')
-# loader4 = DataLoader(symbols='VND', start="2018-01-10", end="2018-02-15", minimal=False, data_source='cafe')
-# loader4 = DataLoader(symbols='VND', start="2018-01-10", end="2018-02-15", minimal=True, data_source='cafe')
-# loader4 = DataLoader(symbols=['VND', 'VCB'], start="2018-01-10", end="2018-02-15", minimal=True, data_source='cafe')
+# loader4 = DataLoader(symbols='VND', start="2018-01-10", end="2018-02-15", minimal=True, data_source='vnd')
+# loader5 = DataLoader(symbols=['VND', 'VCB'], start="2018-01-10", end="2018-02-15", minimal=True, data_source='vnd')
+# loader6 = DataLoader(symbols='VND', start="2018-01-10", end="2018-02-15", minimal=False, data_source='cafe')
+# loader7 = DataLoader(symbols='VND', start="2018-01-10", end="2018-02-15", minimal=True, data_source='cafe')
+# loader8 = DataLoader(symbols=['VND', 'VCB'], start="2018-01-10", end="2018-02-15", minimal=True, data_source='cafe')
 
 def stock_wide_format(symbols=['VIC', 'VPB', 'BSC']):
     from datetime import date
     loader3 = DataLoader(symbols=symbols, start="2020-10-01", end=date.today().strftime("%Y-%m-%d"), minimal=True, data_source='vnd')
     stock_price = loader3.download()['close']
     return stock_price
+
+def get_historical_price(symbol='VCB'):
+    from datetime import date
+    loader4 = DataLoader(symbols=symbol, start="2018-01-10", end=date.today().strftime("%Y-%m-%d"), minimal=True, data_source='vnd')
+    stock_price = loader4.download()
+    return stock_price
+
+# loader1.download()
+# loader3.download()
+# loader4.download()
+# loader5.download()

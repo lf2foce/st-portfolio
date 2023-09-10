@@ -1,5 +1,7 @@
 import streamlit as st
 from src.get_data import stock_wide_format
+
+
 import pandas as pd
 
 def my_portfolio():
