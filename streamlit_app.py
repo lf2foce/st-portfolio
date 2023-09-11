@@ -10,13 +10,16 @@ import plotly.express as px
 from src.greeting import get_local_IP_address
 from src.filter.stock_selection import my_portfolio
 from my_chart.heatmap import stock_heatmap
+from src.theme import rename_page
 
 st.set_page_config(
-        page_title="Fidelity Account View by Gerard Bentley",
+        page_title="Vietnam Stocks",
         page_icon="📊",
         initial_sidebar_state="expanded",
         layout="wide",
     )
+
+rename_page()
 
 # # Create the SQL connection to pets_db as specified in your secrets file.
 # conn = st.experimental_connection('stocks_db', type='sql')
